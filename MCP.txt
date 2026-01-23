@@ -1,0 +1,259 @@
+What is MCP -> Model Context Protocol (MCP) provides a standardized client-server architecture for connecting large language models (LLMs) to external tools, data sources, and systems. It enables modular extensions beyond traditional function calling by separating AI reasoning from action execution.
+
+
+!!~~ WHY MCP is Needed? ~~!!
+
+** The Problem of Fragmentation **
+ - AI in notion couldn't talk to AI in Slack
+ - VS Code coding assistant knew nothing about discussions in MS teams
+ - People found themselves living in multiple AI worlds
+ - Users were juggling between multiple AI assistants
+
+** The Vision vs The Reality **
+ - They wanted one unified AI partner that can understand their work
+ - A unified tool that can solve any problem related to their work
+ - Users never wanted 5 different AI tools
+ - The problem of Context
+
+** What is Context? **
+ - Context is everything an AI can "see" when it generates a response.
+ - More formally, Context refers to the information(conversation history, external docs etc) that 
+   the LLM uses to generate a response.
+ - For e.g. while chatting with ChatGPT, the past messages forms the context.
+ - A Software Engineer Wants to use multiple tools or services.
+ - For solving this probelm get Copy Paste Hell which is not time and cost effective.
+
+** The Solution - Function Calling **
+ - Implication of Tools.
+ - Build Tools that allow LLMs to perform actions according to tool functions we make.
+
+ ! The Problem With tools
+  - Integration Problem,
+  - N * M
+  - Development Nightmare
+  - Diff authentication methods
+  - Diff data formats and API patterns
+  - Diff error handling
+  - Maintenance Problem
+  - Security fragmentation
+  - Cost and time wastage
+
+** MCP **
+
+     --------------------------------------------------------------------------------------
+    |                                                    ______                            |
+    | Host(to host the system) (--> Have ! MCP Clients ) ______> connects to ! MCP Servers |
+    |                                                                                      |  
+    |        Their is One-One relation between MCP Client -> MCP Server                    | 
+    |             ~  The Number of MCP Clients ==  MCP Servers                             |
+     --------------------------------------------------------------------------------------
+
+1. MCP Servers
+   - Handles All the things.
+   - Server does the Heavy Lifting
+   - Error handling
+   - Tool & Resource Exposure
+   - Context Provisioning - Feeds the LLM relevant, up-to-date data from external systems 
+     (e.g.,databases, web searches) to ground its responses. 
+   - Security & Management
+   - API Rate Limiting
+   - Authentication
+   - Workflow Orchestration
+   - Data Transformation
+
+   !~ Benefits ~!
+
+    1. N clients and M servers = M + N integrations
+    2. No maintenance overhead
+    3. Reduced cost and time
+    4. Better security
+
+2. MCP Clients
+   - The Client has to just connect to the server using the same language.
+   - Uses All Tools, Resources and etc all services that a particular mcp server provides.
+
+
+!!~~ How MCP Works?(Architecture) ~~!!
+
+~~ MCP Server Provides This :
+
+    ** MCP Primitives **
+    -> Tools - Actions the AI ask the server to perform.
+    -> Resources - Structured data sources that the AI can read.
+    -> Prompts - Predefined prompt templates or instructions that the server offers to help shape 
+                    the AI's behavior.
+
+                    (E.G) {
+                            "name": "issue_report_prompt",
+                            "description": "Write clear, detailed GitHub issues",
+                            "messages": [{
+                            "role": "system", 
+                            "content": "Always include: Title, Steps to    Reproduce, Expected, Actual, Environment"
+                            }]
+                          }
+
+    ** Primitives - Standard Operations **
+        1.Tools 
+         - tools/list -> Client asks the server : "What tools do you provide?"
+         - tools/call -> Client tell the server : "Please run this tool with these arguments"
+
+        2.Resources
+         - resources/list -> Client asks : "What resources are available"
+         - resources/read -> Client says : "Give me the content of this resource(ex - github repo)"
+         - resources/subscribe/unsubscribe -> Client Subscribes or UnSubscribes from Updates
+
+        3.Prompts
+         - prompts/list -> Client asks : "What prompt templates do you provide"
+         - prompts/get -> Client fetches a specific prompt template
+
+        
+~~ MCP Data Layer ~~
+
+    ~ Data Layer - The data layer is the language and grammar of the MCP ecosystem that everyone 
+                   agrees upon to communicate.
+                 - In MCP, JSON RPC 2.0 serves as the foundation of the data layer.
+
+    ~ JSON RPC 2.0 (JSON RPC stands for JavaScript Object Notation – Remote Procedure Call)
+                 - A Remote Procedure Call (RPC) allows a program to execute a function on 
+                   another computer as if it were local, hiding the details of network communication and data transfer.
+                   This abstraction makes it easier to build distributed applications.
+
+                  !Client Request Ex -
+                  {
+                    "jsonrpc": "2.0",
+                    "id": "req-123",
+                    "method": "tools/call",
+                    "params": {
+                      "name": "get-weather",
+                      "arguments": {
+                        "location": "San Francisco",
+                        "days": 2
+                      }
+                    }
+                  }
+
+                  ! Notifications (Does not require Response)
+                  {
+                    "jsonrpc": "2.0",
+                    "method": "notifications/progress",
+                    "params": {
+                      "operation": "file_upload",
+                      "progress": 0.75,
+                      "message": "Uploading chunk 3 of 4..."
+                    }
+                  }
+
+                  ! Server Response Ex -
+                  {
+                    "jsonrpc": "2.0",
+                    "id": "req-123",
+                    "result": {
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The weather in San Francisco for the next 2 days will be partly cloudy with temperatures around 62°F (16°C)."
+                        }
+                      ],
+                      "isError": false
+                    }
+                  }
+
+                    Error Response -
+                      {
+                        "jsonrpc": "2.0",
+                        "id": "req-123",
+                        "error": {
+                          "code": -32602,
+                          "message": "Invalid params",
+                          "data": {
+                            "field": "days",
+                            "reason": "Must be a positive number",
+                            "received": -2
+                          }
+                        }
+                      }
+
+                  ~ Why JSON RPC for Data Layer?
+                    - It’s lightweight
+                    - Supports bi-directional communication (request can be send by anyone Client or Server)
+                    - Supports batching(Can send multiple request at one time)
+                    - Supports notification
+                    - It is transport-agnostic(Can send any type of request http/stdio etc)
+
+    ~ MCP Transport Layer
+      -> The Transport Layer is the mechanism that moves JSON-RPC messages between the Client and Server.
+      -> The choice of transport depends on the type of server.
+
+    ~ MCP - Types of Server
+
+                            MCP Server
+                            /       \
+                          /         \
+                          /           \
+        (HTTP/SSE)Remote(Tp T)         local(STDIO)(Transport type)
+    - A remote server is a program   - A local server is a program
+      running on another computer      running on your own computer.   
+      that you connect to over a
+      network(github,slack etc).
+                        
+
+!!~~ MCP Life-Cycle ~~!!
+
+The MCP Life Cycle describes the complete sequence of steps that govern how a Host (client) and a Server establish, use, and end a connection during a session.
+
+                   Stages of MCP Lifecycle
+                    /         |         \ 
+                   /          |          \
+                  /           |           \
+                 /            |            \
+    Initialization        Operation        Shut-Down   
+
+~ Initialization
+Phase 1 : Client send an initialize request contaning
+          (MCP protocol info,client capabilities,client implementation info)
+Phase 2 : The Server sends its own capabilities and info
+          (MCP protocol version,Server capabilities,Server implementation info)
+Phase 3 : After successful initialization, the client MUST send an initialized notification to
+          indicate  it is ready to begin normal operations.(Connection Successfull client-server)
+
+  !! PING is a standard JSON-RPC request to check if a connected client or server is still
+     responsive and the connection is alive.
+
+      ~ The client SHOULD NOT send requests other than PINGS before the server has responded to 
+        the initialize request.
+
+      ~ The server SHOULD NOT send requests other than PINGS and logging before receiving 
+        the initialized notification.
+
+  !! Version Negotiation
+    - If the Protocol Version of Requests are different("2025-03-26" version )
+    - It creates a list called SUPPORTED_PROTOCOL_VERSIONS = [all versions]
+    - when someother requests comes it will first check that is this version is available with me or not.
+
+  !! Capability Negotiation
+    - Client and server capabilities establish which protocol features will be available during 
+      the session.
+    - Ex (Client - root,sampling{server asks to use AI},
+          elicitation{client provide incomplete information})
+          (Server - prompts,resources,tools,logging)
+
+~ Operation 
+-> During the operation phase, the client and server exchange messages according to the 
+   negotiated capabilities.
+-> Respect the negotiated protocol version.
+-> Only use capabilities that were successfully negotiated.
+
+~ Shut-Down
+-> No special JSON RPC shutdown message is defined.
+-> Transport layer is responsible for signaling termination.
+
+  ~ Client-initiated shutdown (SHOULD):
+    - Close input stream to the child process (server)
+    - Wait for server to exit
+    - Send SIGTERM if server does not exit in time
+    - Send SIGKILL if still unresponsive
+
+  ~ Server-initiated shutdown (MAYBE):
+    - Close output stream to the client.
+    - Ex. Some internal error occurs or some functions is not working or their is changes in tools
+          or any other situation it can close the connection and client should be able to handle it.

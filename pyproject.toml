@@ -1,0 +1,24 @@
+[project]
+name = "mcp-making"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "composio>=0.10.9",
+    "dotenv>=0.9.9",
+    "fastmcp>=2.14.4",
+    "httpx<1.0",
+    "langchain-classic>=1.0.1",
+    "langchain-core>=1.2.7",
+    "langchain-google-genai>=4.2.0",
+    "langchain-mcp-adapters>=0.2.1",
+    "langchain-ollama>=1.0.1",
+    "langchain-openai>=1.1.7",
+    "langgraph>=1.0.7",
+    "matplotlib>=3.10.8",
+    "networkx>=3.4.2",
+    "psutil>=7.2.1",
+    "streamlit>=1.53.1",
+]
