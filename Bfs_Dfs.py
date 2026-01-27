@@ -2,105 +2,195 @@ import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
 import time
-from collections import deque
 
 st.set_page_config(page_title="Graph Traversal Pro", layout="wide")
-st.title("🎓 Graph Traversal & Loop Analysis")
 
-# 1. Graph Configuration
+# Modern CSS
+st.markdown(
+    """
+    <style>
+    .mem-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 300px;
+    }
+    .node-box {
+        background: linear-gradient(135deg, #4A90E2, #50E3C2);
+        color: white;
+        padding: 12px;
+        margin: 10px 0;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        animation: slideIn 0.5s ease-out;
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.title("🌳 Modern Graph Discovery: DFS vs BFS")
+
+# Graph Configuration
 graph_data = {
-    'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': ['B'],
-    'F': []
+    "A": ["B", "C"],
+    "B": ["D", "E"],
+    "C": ["F"],
+    "D": [],
+    "E": ["B"],
+    "F": [],
+}
+G = nx.DiGraph(graph_data)
+pos = {
+    "A": (0, 2),
+    "B": (-1.5, 1),
+    "C": (1.5, 1),
+    "D": (-2, 0),
+    "E": (-1, 0),
+    "F": (1.5, 0),
 }
 
-G = nx.DiGraph(graph_data)
-# Static positions for a clean "Tree-like" look
-pos = {'A': (0, 2), 'B': (-1, 1), 'C': (1, 1), 'D': (-1.5, 0), 'E': (-0.5, 0), 'F': (1, 0)}
+# Sidebar
+st.sidebar.header("Pacing Controls")
+algo_choice = st.sidebar.radio(
+    "Algorithm:", ["BFS (Breadth-First)", "DFS (Depth-First)"]
+)
+speed = st.sidebar.slider("Step Duration (seconds)", 1.0, 2.0)
 
-# Sidebar Controls
-st.sidebar.header("Algorithm Settings")
-algo_choice = st.sidebar.radio("Select Traversal:", ["BFS (Breadth-First)", "DFS (Depth-First)"])
-speed = st.sidebar.slider("Animation Speed", 0.5, 2.0, 1.0)
-
-# Main UI Layout
-col_graph, col_info = st.columns([2, 1])
+col_graph, col_mem = st.columns([2, 1])
 
 with col_graph:
-    st.subheader("Live Visualization")
     plot_spot = st.empty()
-    # This will show the order dynamically
-    order_spot = st.empty()
+    path_spot = st.empty()
 
-with col_info:
-    st.subheader("Traversal Log")
-    log_area = st.container()
+with col_mem:
+    st.subheader("Memory Buffer")
+    mem_spot = st.empty()
 
-def run_visualizer(mode):
-    visited = set()
-    container = ['A'] # Starting Node
-    order = []
-    loops = []
-    
-    node_colors = {n: 'skyblue' for n in G.nodes()}
-    edge_colors = {(u, v): 'gray' for u, v in G.edges()}
 
-    while container:
-        # ALGORITHM LOGIC: Queue vs Stack
-        if mode == "BFS (Breadth-First)":
-            current = container.pop(0) # FIFO
+def draw_graph_step(visible_nodes, visible_edges, active_node=None, visited_list=None):
+    visited_list = visited_list or []
+    fig, ax = plt.subplots(figsize=(6, 4), facecolor="none")
+    ax.set_facecolor("none")
+    ax.set_xlim(-2.5, 2.5)
+    ax.set_ylim(-0.5, 2.5)
+    plt.axis("off")
+
+    node_colors = []
+    for n in visible_nodes:
+        if n == active_node:
+            node_colors.append("#FF4B4B")  # RED: Active
+        elif n in visited_list:
+            node_colors.append("#26657A")  # BLUE: Visited
         else:
-            current = container.pop()    # LIFO
-        
+            node_colors.append("#E3B06E")  # GOLD: Unvisited/Discovered
+
+    nx.draw(
+        G,
+        pos,
+        nodelist=list(visible_nodes),
+        edgelist=visible_edges,
+        with_labels=True,
+        node_color=node_colors,
+        edge_color="#262424",
+        node_size=1200,
+        font_weight="bold",
+        font_color="white",
+        arrows=True,
+        arrowsize=20,
+        ax=ax,
+        connectionstyle="arc3,rad=0.25",
+        width=2,
+    )
+
+    plot_spot.pyplot(fig)
+    plt.close(fig)
+
+
+def update_mem_ui(container, mode):
+    label = (
+        "BOTTOM (Queue - FIFO)"
+        if mode == "BFS (Breadth-First)"
+        else "TOP (Stack - LIFO)"
+    )
+    # We display the stack so the last item added is at the top
+    items = list(container)
+    if mode == "DFS (Depth-First)":
+        items = items[::-1]
+
+    html = f"<div class='mem-container'><b>{label}</b>"
+    for item in items:
+        html += f"<div class='node-box'>{item}</div>"
+    html += "</div>"
+    mem_spot.markdown(html, unsafe_allow_html=True)
+
+
+def run_animation(mode):
+    # PHASE 1: PREVIEW
+    path_spot.info("Analyzing Structure...")
+    draw_graph_step(G.nodes(), G.edges(), visited_list=[])
+    time.sleep(2)
+
+    # PHASE 2: RESET AND GROW
+    path_spot.empty()
+    visited = []
+    frontier = ["A"]  # This is our Stack or Queue
+    shown_nodes = {"A"}
+    shown_edges = []
+
+    while frontier:
+        update_mem_ui(frontier, mode)
+
+        # POP logic:
+        # BFS: Pop from front (index 0)
+        # DFS: Pop from back (last item)
+        current = frontier.pop(0) if mode == "BFS (Breadth-First)" else frontier.pop()
+
         if current not in visited:
-            visited.add(current)
-            order.append(current)
-            node_colors[current] = 'orange'
-            
-            # --- UPDATE LIVE ORDER TEXT ---
-            order_spot.markdown(f"### 📍 Visiting Order: {' → '.join(order)}")
-            
-            # --- DRAW GRAPH ---
-            fig, ax = plt.subplots(figsize=(7, 5))
-            nx.draw(G, pos, with_labels=True, 
-                    node_color=[node_colors[n] for n in G.nodes()],
-                    edge_color=[edge_colors[e] for e in G.edges()],
-                    node_size=500, connectionstyle='arc3, rad = 0.3', 
-                    arrows=True, arrowsize=20, ax=ax, font_weight='bold')
-            plot_spot.pyplot(fig)
-            plt.close(fig)
-            
-            with log_area:
-                st.write(f"✅ Visited Node **{current}**")
-            
+            # 1. VISITING: Highlight Active Node
+            draw_graph_step(
+                shown_nodes, shown_edges, active_node=current, visited_list=visited
+            )
+            path_spot.markdown(f"### 📍 Processing Node: **{current}**")
             time.sleep(speed)
 
-            # --- PROCESS NEIGHBORS ---
+            visited.append(current)
+            path_spot.markdown(f"### 📍 Path: {' → '.join(visited)}")
+
+            # 2. DISCOVERY: Find neighbors
             neighbors = graph_data[current]
-            if mode == "DFS (Depth-First)":
-                neighbors = reversed(neighbors)
 
-            for neighbor in neighbors:
-                if neighbor in visited:
-                    # Highlight Loop but keep going
-                    loops.append((current, neighbor))
-                    edge_colors[(current, neighbor)] = 'red'
-                    node_colors[neighbor] = 'red'
-                else:
-                    container.append(neighbor)
-                    if node_colors[neighbor] == 'skyblue':
-                        node_colors[neighbor] = 'lightgreen' # Discovered
+            # To maintain expected order in DFS (A -> B before A -> C),
+            # we don't necessarily need to reverse here because the stack handles it,
+            # but for visualization consistency:
+            for n in neighbors:
+                shown_nodes.add(n)
+                shown_edges.append((current, n))
 
-    return order, loops
+                # Show neighbor discovery
+                draw_graph_step(
+                    shown_nodes, shown_edges, active_node=current, visited_list=visited
+                )
 
-if st.sidebar.button("▶️ Start Traversal"):
-    final_order, found_loops = run_visualizer(algo_choice)
-    
-    st.divider()
-    st.success(f"🎊 Execution Finished! Final Sequence: {' → '.join(final_order)}")
-    
-    if found_loops:
-        st.warning(f"⚠️ Loop(s) detected at: {', '.join([f'{u}→{v}' for u, v in found_loops])}")
+                if n not in visited:
+                    # In standard DFS, we add it even if it's in frontier to ensure
+                    # it moves to the "Top" of the stack
+                    if mode == "DFS (Depth-First)" and n in frontier:
+                        frontier.remove(n)
+                    frontier.append(n)
+                    update_mem_ui(frontier, mode)
+
+                time.sleep(speed * 0.5)
+
+    path_spot.success(f"Execution Complete! Final Path: {' → '.join(visited)}")
+
+
+if st.sidebar.button("▶️ Start Slow-Motion Traversal"):
+    run_animation(algo_choice)
