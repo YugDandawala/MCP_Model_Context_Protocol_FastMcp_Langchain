@@ -1,6 +1,6 @@
 # Model Context Protocol (MCP)
 
-##💡 Introduction 
+💡 Introduction 
 
 The **Model Context Protocol (MCP)** provides a standardized client-server architecture for connecting large language models (LLMs) to external tools, data sources, and systems. It enables modular extensions beyond traditional function calling by separating AI reasoning from action execution.
 
@@ -8,7 +8,7 @@ The **Model Context Protocol (MCP)** provides a standardized client-server archi
 
 # Why MCP is needed ❓
 
-##🧩 The Problem of Fragmentation 
+🧩 The Problem of Fragmentation 
 
 The modern AI landscape is fragmented, leading to siloed knowledge and inefficient workflows:
 
@@ -16,11 +16,11 @@ The modern AI landscape is fragmented, leading to siloed knowledge and inefficie
 *   VS Code coding assistants knew nothing about discussions in MS Teams.
 *   Users found themselves living in multiple AI worlds, juggling between various assistants.
 
-##🎯 The Vision vs. The Reality 
+🎯 The Vision vs. The Reality 
 
 The ultimate goal is a unified AI partner that can understand a user's complete work context and solve any related problem. Users do not want five different AI tools; they want one cohesive solution. The core challenge is **Context**.
 
-##🧠 What is Context? 
+🧠 What is Context? 
 
 Context is everything an AI can "see" when it generates a response. More formally, Context refers to the information (conversation history, external documents, etc.) that the LLM uses to generate a response.
 
@@ -31,7 +31,7 @@ Context is everything an AI can "see" when it generates a response. More formall
 
 The initial solution was the implication of tools—building functions that allow LLMs to perform actions according to predefined tool specifications.
 
-###🚧 The Problem with Tools 
+🚧 The Problem with Tools 
 
 While function calling is a step forward, it introduces significant integration and maintenance challenges:
 
@@ -43,7 +43,7 @@ While function calling is a step forward, it introduces significant integration 
 
 ---
 
-#🏗️ MCP Architecture 
+🏗️ MCP Architecture 
 
 MCP solves the fragmentation problem by introducing a standardized client-server model.
 
@@ -61,7 +61,7 @@ The MCP architecture defines a clear separation of concerns between the Host/Cli
      --------------------------------------------------------------------------------------
 ```
 
-##⚙️ MCP Servers: The Heavy Lifters 
+⚙️ MCP Servers: The Heavy Lifters 
 
 The MCP Server is responsible for the heavy lifting, abstracting away the complexity of external systems.
 
@@ -81,11 +81,11 @@ The MCP Server is responsible for the heavy lifting, abstracting away the comple
 3.  **Reduced Cost and Time**
 4.  **Better Security**
 
-##💻 MCP Clients: The AI Interface 
+💻 MCP Clients: The AI Interface 
 
 The MCP Client is the interface between the LLM (the AI) and the MCP Server. The client's role is to simply connect to the server using the standardized MCP language and utilize all the tools, resources, and services that the particular MCP Server provides.
 
-###🔄 The Client's Role in the MCP Cycle 
+🔄 The Client's Role in the MCP Cycle 
 
 The client is responsible for three key phases in the interaction loop:
 
@@ -95,11 +95,11 @@ The client is responsible for three key phases in the interaction loop:
 
 ---
 
-#🛠️ How MCP works? 
+🛠️ How MCP works? 
 
 MCP operates through a set of standardized primitives, a common data layer, and a flexible transport layer.
 
-##🧱 MCP Server Primitives 
+🧱 MCP Server Primitives 
 
 MCP Primitives are the fundamental building blocks that the Server exposes to the Client.
 
@@ -124,7 +124,7 @@ MCP Primitives are the fundamental building blocks that the Server exposes to th
 }
 ```
 
-###🔗 Primitives - Standard Operations 
+🔗 Primitives - Standard Operations 
 
 The protocol defines standard methods for interacting with each primitive:
 
@@ -225,7 +225,7 @@ A Remote Procedure Call (RPC) allows a program to execute a function on another 
 
 The Transport Layer is the mechanism that moves JSON-RPC messages between the Client and Server. The choice of transport depends on the type of server.
 
-##🌐 MCP Server Types 
+🌐 MCP Server Types 
 
 MCP defines two main types of servers based on their deployment and transport mechanism:
 
@@ -243,7 +243,7 @@ MCP defines two main types of servers based on their deployment and transport me
 
 ---
 
-#🔄 MCP Life-cycle 
+🔄 MCP Life-cycle 
 
 The MCP Life Cycle describes the complete sequence of steps that govern how a Host (client) and a Server establish, use, and end a connection during a session.
 
@@ -294,7 +294,7 @@ During the operation phase, the client and server exchange messages according to
 *   All communication must respect the negotiated protocol version.
 *   Only capabilities that were successfully negotiated can be used.
 
-##🛑 Shut-Down: Terminating the Session 
+🛑 Shut-Down: Terminating the Session 
 
 No special JSON RPC shutdown message is defined. The transport layer is responsible for signaling termination.
 
