@@ -9,7 +9,6 @@ dependencies = [
     "composio>=0.10.9",
     "dotenv>=0.9.9",
     "fastmcp>=2.14.4",
-    "httpx<1.0",
     "langchain-classic>=1.0.1",
     "langchain-core>=1.2.7",
     "langchain-google-genai>=4.2.0",
