@@ -6,6 +6,10 @@ client = MultiServerMCPClient({
         "transport": "http",
         "url": "http://127.0.0.1:8000/mcp",
     },
+    "FastAPI":{
+        "transport":"http",
+        "url":"http://127.0.0.1:8001/mcp"
+    },
     "LocalFileSystem": {
         "transport": "stdio",
         "command": "/home/nt020/.local/bin/uv",

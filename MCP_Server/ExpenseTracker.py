@@ -1,4 +1,4 @@
-from fastmcp import FastMCP
+from fastmcp import FastMCP,Context
 import os
 import asyncpg
 import json
@@ -74,6 +74,38 @@ async def list_expenses(start_date: str, end_date: str):
             d['date'] = d['date'].isoformat() # Convert date object back to string "2025-04-15"
             results.append(d)
         return results
+
+@mcp.tool()
+async def ai_expense_insights(start_date: str, end_date: str, ctx: Context):  # NEW: Add ctx: Context
+    '''AI-powered expense analysis and recommendations'''
+    # Get raw data first
+    expenses = await list_expenses(start_date, end_date)
+    
+    # LLM analysis via sampling
+    analysis = await ctx.sample(
+        f"""
+        Analyze these expenses from {start_date} to {end_date}:
+        
+        {json.dumps(expenses, indent=2)}
+        
+        Provide:
+        1. Spending trends by category
+        2. Budget alerts (Food > ₹5000, Travel > ₹10000)
+        3. Savings recommendations
+        4. Visualization suggestions (bar chart?)
+        
+        Output in actionable bullet points.
+        """,
+        system_prompt="You are a personal finance expert. Be specific with amounts and actionable.",
+        temperature=0.1,
+        max_tokens=600
+    )
+    
+    return {
+        "raw_data": expenses,
+        "ai_analysis": analysis.text,
+        "period": f"{start_date} to {end_date}"
+    }
 
 @mcp.tool()
 async def summarize(start_date: str, end_date: str, category: str = None):

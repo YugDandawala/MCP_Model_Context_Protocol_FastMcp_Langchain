@@ -85,7 +85,6 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
-
 # import asyncio
 # import operator
 # from typing import Annotated, TypedDict, Union
@@ -93,14 +92,14 @@ if __name__ == "__main__":
 # from langgraph.prebuilt import ToolNode, tools_condition
 # from langchain_google_genai import ChatGoogleGenerativeAI
 # from langchain_core.messages import HumanMessage, BaseMessage, AIMessage, ToolMessage,SystemMessage
-# from mcp_client import get_github_tools
+# from mcp_client import get_github_tools,get_prompts
 # import os 
 # from dotenv import load_dotenv
 
 # load_dotenv()
 # # 1. Initialize LLM with the stable alias
 # llm = ChatGoogleGenerativeAI(
-#     model = "gemini-2.0-flash",
+#     model = "gemini-flash-latest",
 #     temperature = 0.2,
 #     google_api_key = os.getenv("GOOGLE_API_KEY")
 # )
@@ -112,7 +111,7 @@ if __name__ == "__main__":
 # async def main():
 #     github_tools = await get_github_tools()
 #     llm_with_tools = llm.bind_tools(github_tools)
-    
+
 #     builder = StateGraph(AgentState)
     
 #     async def agent_node(state: AgentState):
@@ -151,4 +150,4 @@ if __name__ == "__main__":
 # if __name__ == "__main__":
 #     asyncio.run(main())
 
-# Read the Chat.txt file from the AI-Podcast-Assistant repository. Analyze the dialogue and classify the participants into 'Human' and 'AI'.Create a new file named Chat.md in the same repository. Format the content to look like a modern chat interface using the following style.Header: Use a clean title like '# 🗨️ Conversation History'.Human Messages: Use a bold label like '👤 Human:' followed by the message.AI Messages: Use a bold label like '🤖 AI Assistant:' and wrap the AI's response in a blockquote (>) to give it a distinct background look.Separation: Place a horizontal rule (---) between each back-and-forth exchange.Ensure the flow is chronological and easy to read for someone who wasn't part of the chat.
+#"ACT AS A DOCUMENTATION ENGINEER. Task: Convert 'Chat.txt' (AI-Podcast-Assistant repo) into 'Chat2.md'. STRICT RULES: 1. Start with '# 🗨️ Conversation History'. 2. Label Human as '### 👤 Human' and AI as '### 🤖 AI Assistant'. 3. Wrap ALL AI content in blockquotes (>). 4. ASCII DIAGRAMS: Detect all text-based boxes/flowcharts and wrap them in '```text' blocks. DO NOT change spacing or characters; preserve the exact ASCII alignment. 5. CODE: Wrap Python in '```python' and JSON in '```json', ensuring they remain nested inside the AI blockquotes. 6. DIVIDERS: Place '---' between every exchange. 7. FLOW: Maintain 100% chronological accuracy without omissions. Output must look like a professional, scannable chat UI."
