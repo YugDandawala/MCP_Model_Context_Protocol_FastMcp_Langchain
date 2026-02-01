@@ -307,4 +307,4 @@ No special JSON RPC shutdown message is defined. The transport layer is responsi
 
 ### Server-Initiated Shutdown (MAYBE)
 
-The server may close the output stream to the client if an internal error occurs, a function is not working, tools change, or any other situation that necessitates termination. The client should be able to handle this unexpected closure.
+The server may close the output stream to the client if an internal error occurs, a function is not working, tools change, or any other situation that necessitates termination. The client should be and need to be able to handle some unexpected errors that occurs in server.
