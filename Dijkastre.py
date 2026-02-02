@@ -148,7 +148,7 @@ import time
 import heapq
 import pandas as pd
 
-st.set_page_config(page_title = "Dijkstra Path Visualizer", layout="wide")
+st.set_page_config(page_title = "Dijkstra Path Visualizer", layout = "wide")
 
 st.title("⚡ Dijkstra: Full Path Discovery Table")
 
@@ -208,9 +208,9 @@ def draw_viz(active_node, visited, discovered_edges):
     nx.draw(G, pos, with_labels = True, node_color = colors, node_size = 800, 
             font_color = "white", font_weight = "bold", ax = ax, edge_color = "#999", width = 1)
     
-    nx.draw_networkx_edges(G, pos, edgelist=discovered_edges, edge_color="#FF4B4B", width=2, ax=ax)
+    nx.draw_networkx_edges(G, pos, edgelist = discovered_edges, edge_color = "#FF4B4B", width = 2, ax = ax)
     edge_labels = nx.get_edge_attributes(G, 'weight')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, ax = ax)
     plt.axis("off")
     plot_spot.pyplot(fig)
     plt.close(fig)
