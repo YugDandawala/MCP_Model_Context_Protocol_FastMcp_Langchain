@@ -148,7 +148,7 @@ import time
 import heapq
 import pandas as pd
 
-st.set_page_config(page_title="Dijkstra Path Visualizer", layout="wide")
+st.set_page_config(page_title = "Dijkstra Path Visualizer", layout="wide")
 
 st.title("⚡ Dijkstra: Full Path Discovery Table")
 
@@ -162,10 +162,10 @@ graph = {
     'F': {}
 }
 
-G = nx.DiGraph()
+G = nx.Graph()
 for u, neighbors in graph.items():
     for v, weight in neighbors.items():
-        G.add_edge(u, v, weight=weight)
+        G.add_edge(u, v, weight = weight)
 
 pos = {'A': (0, 1), 'B': (1, 2), 'C': (1, 0), 'D': (2, 2), 'E': (2, 0), 'F': (3, 1)}
 
@@ -206,7 +206,8 @@ def draw_viz(active_node, visited, discovered_edges):
         else: colors.append("#E3B06E")
             
     nx.draw(G, pos, with_labels=True, node_color=colors, node_size=800, 
-            font_color="white", font_weight="bold", ax=ax, edge_color="#999", width=1)
+            font_color= "white", font_weight = "bold", ax = ax, edge_color = "#999", width = 1)
+    
     nx.draw_networkx_edges(G, pos, edgelist=discovered_edges, edge_color="#FF4B4B", width=2, ax=ax)
     edge_labels = nx.get_edge_attributes(G, 'weight')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax)
@@ -236,7 +237,7 @@ def dijkstra_with_paths(start):
         
         status_spot.markdown(f"### 📍 Current Explorer: **Node {u}**")
         draw_viz(u, visited, seen_edges)
-        time.sleep(speed)
+        time.sleep(2)
 
         for v, weight in graph[u].items():
             seen_edges.append((u, v))
@@ -249,7 +250,7 @@ def dijkstra_with_paths(start):
                 status_spot.info(f"✨ Relaxation: Found a better path to {v} via {u}")
             
             draw_viz(u, visited, seen_edges)
-            time.sleep(speed * 0.4)
+            time.sleep(speed * 0.6)
 
         visited.add(u)
 
