@@ -100,14 +100,14 @@ def draw_graph_step(visible_nodes, visible_edges, active_node = None, visited_li
         with_labels = True,
         node_color = node_colors,
         edge_color = "#262424",
-        node_size=1200,
-        font_weight="bold",
-        font_color="white",
-        arrows=True,
-        arrowsize=20,
-        ax=ax,
-        connectionstyle="arc3,rad=0.25",
-        width=2,
+        node_size = 1200,
+        font_weight = "bold",
+        font_color = "white",
+        arrows = True,
+        arrowsize = 20,
+        ax = ax,
+        connectionstyle = "arc3,rad=0.25",
+        width = 2,
     )
 
     plot_spot.pyplot(fig)
@@ -135,7 +135,7 @@ def update_mem_ui(container, mode):
 def run_animation(mode):
     # PHASE 1: PREVIEW
     path_spot.info("Analyzing Structure...")
-    draw_graph_step(G.nodes(), G.edges(), visited_list=[])
+    draw_graph_step(G.nodes(), G.edges(), visited_list = [])
     time.sleep(2)
 
     # PHASE 2: RESET AND GROW
