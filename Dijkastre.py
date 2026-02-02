@@ -205,8 +205,8 @@ def draw_viz(active_node, visited, discovered_edges):
         elif n in visited: colors.append("#26657A")
         else: colors.append("#E3B06E")
             
-    nx.draw(G, pos, with_labels=True, node_color=colors, node_size=800, 
-            font_color= "white", font_weight = "bold", ax = ax, edge_color = "#999", width = 1)
+    nx.draw(G, pos, with_labels = True, node_color = colors, node_size = 800, 
+            font_color = "white", font_weight = "bold", ax = ax, edge_color = "#999", width = 1)
     
     nx.draw_networkx_edges(G, pos, edgelist=discovered_edges, edge_color="#FF4B4B", width=2, ax=ax)
     edge_labels = nx.get_edge_attributes(G, 'weight')
