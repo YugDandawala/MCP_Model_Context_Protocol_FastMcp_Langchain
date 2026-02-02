@@ -3,7 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import time
 
-st.set_page_config(page_title="Graph Traversal Pro", layout="wide")
+st.set_page_config(page_title = "Graph Traversal Pro", layout = "wide")
 
 # Modern CSS
 st.markdown(
