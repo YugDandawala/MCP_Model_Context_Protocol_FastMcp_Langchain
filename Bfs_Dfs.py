@@ -75,9 +75,9 @@ with col_mem:
     mem_spot = st.empty()
 
 
-def draw_graph_step(visible_nodes, visible_edges, active_node=None, visited_list=None):
+def draw_graph_step(visible_nodes, visible_edges, active_node = None, visited_list = None):
     visited_list = visited_list or []
-    fig, ax = plt.subplots(figsize=(6, 4), facecolor="none")
+    fig, ax = plt.subplots(figsize=(6, 4), facecolor = "none")
     ax.set_facecolor("none")
     ax.set_xlim(-2.5, 2.5)
     ax.set_ylim(-0.5, 2.5)
@@ -95,11 +95,11 @@ def draw_graph_step(visible_nodes, visible_edges, active_node=None, visited_list
     nx.draw(
         G,
         pos,
-        nodelist=list(visible_nodes),
-        edgelist=visible_edges,
-        with_labels=True,
-        node_color=node_colors,
-        edge_color="#262424",
+        nodelist = list(visible_nodes),
+        edgelist = visible_edges,
+        with_labels = True,
+        node_color = node_colors,
+        edge_color = "#262424",
         node_size=1200,
         font_weight="bold",
         font_color="white",
